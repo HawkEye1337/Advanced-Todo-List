@@ -341,7 +341,9 @@ body {
 	color: var(--white);
 	background: var(--blue);
 }
-
+.todo-lister {
+	display: none;
+}
 /* Edit icon */
 .edit {
 	float: right;
