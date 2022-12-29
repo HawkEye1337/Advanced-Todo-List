@@ -24,6 +24,7 @@ const newTaskDescEl = document.querySelector('#description');
 
 const h2 = document.querySelector('.container h2');
 const submitInput = document.querySelector(`input[type="submit"]`);
+let currentTodo;
 
 console.log(formContainer);
 console.log(taskTemplate);
@@ -32,7 +33,7 @@ let projectList = [];
 // [{name:'first project', id: '1', tasks}]
 let selectedId;
 let modalOpen = false;
-let editMode = false;
+// let editMode = false;
 class Project {
 	constructor(name, id, tasks = []) {
 		this.name = name;
@@ -167,8 +168,9 @@ const renderTodos = function () {
 		todoDom.querySelector('.checkbox').style = 'border: 2px solid rgb(211, 208, 15);';
 		todoLabel.append(task.title, lineBreak, task.desc);
 		const editButton = document.createElement('p');
-		const editSvg =
-			'<svg class="svg-inline--fa fa-edit fa-w-18" aria-hidden="true" focusable="false" data-prefix="far" data-icon="edit" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"></path></svg>';
+		const editSvg = `<i class="far fa-edit"></i>`;
+		// const editSvg =
+		// 	'<svg class="svg-inline--fa fa-edit fa-w-18" aria-hidden="true" focusable="false" data-prefix="far" data-icon="edit" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" data-fa-i2svg=""><path fill="currentColor" d="M402.3 344.9l32-32c5-5 13.7-1.5 13.7 5.7V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V112c0-26.5 21.5-48 48-48h273.5c7.1 0 10.7 8.6 5.7 13.7l-32 32c-1.5 1.5-3.5 2.3-5.7 2.3H48v352h352V350.5c0-2.1.8-4.1 2.3-5.6zm156.6-201.8L296.3 405.7l-90.4 10c-26.2 2.9-48.5-19.2-45.6-45.6l10-90.4L432.9 17.1c22.9-22.9 59.9-22.9 82.7 0l43.2 43.2c22.9 22.9 22.9 60 .1 82.8zM460.1 174L402 115.9 216.2 301.8l-7.3 65.3 65.3-7.3L460.1 174zm64.8-79.7l-43.2-43.2c-4.1-4.1-10.8-4.1-14.8 0L436 82l58.1 58.1 30.9-30.9c4-4.2 4-10.8-.1-14.9z"></path></svg>';
 		editButton.classList.add('edit');
 		editButton.innerHTML = editSvg;
 		todoDom.querySelector('.task').appendChild(editButton);
@@ -192,6 +194,13 @@ const addNewTask = function () {
 	});
 };
 
+const editTask = function (task) {
+	newTaskTitleEl.value = task.title;
+	newTaskPriotityEl.value = task.priority;
+	newTaskDateEl.value = task.dueDate;
+	newTaskDescEl.value = task.desc;
+};
+
 // clear todo list field before adding todos
 const clearTodos = function () {
 	while (todosContainer.firstChild) {
@@ -204,26 +213,40 @@ newTaskForm.addEventListener('submit', (e) => {
 	e.preventDefault();
 	if (h2.textContent !== `Updating Task`) {
 		addNewTask();
+	} else {
+		currentTodo.title = newTaskTitleEl.value;
+		currentTodo.dueDate = newTaskDateEl.value;
+		currentTodo.priority = newTaskPriotityEl.value;
+		currentTodo.desc = newTaskDescEl.value;
 	}
 	clearTodos();
 	renderTodos();
 	closeModal();
-	editMode = false;
+	// editMode = false;
+	console.log(projectList);
 });
 
 // const editButton = document.querySelector('.edit');
 
 todosContainer.addEventListener('click', (e) => {
-	const [currentTodos] = projectList.map((project) => {
+	console.log(projectList);
+	const currentTodos = projectList.map((project) => {
 		return project.tasks;
 	});
-	const currentTodo = currentTodos.find((task) => {
-		return task.id === e?.target.closest('p')?.parentElement?.firstElementChild?.id;
+	console.log('===============');
+	console.log(currentTodos);
+	console.log('===============');
+	currentTodos.forEach((todo) => {
+		currentTodo = todo.find((task) => {
+			console.log(`task id: ${task.id}`);
+			console.log(e.target.closest('p').parentElement.firstElementChild.id);
+			return task.id === e?.target.closest('p')?.parentElement?.firstElementChild?.id;
+		});
 	});
-
+	console.log(currentTodo);
 	if (e.target.closest('p')) {
 		h2.textContent = `Updating Task`;
-		// submitInput.value = 'Submit';
+		submitInput.value = 'Submit';
 		newTaskTitleEl.value = currentTodo.title;
 		newTaskDateEl.value = currentTodo.dueDate;
 		newTaskDescEl.value = currentTodo.desc;
@@ -236,3 +259,10 @@ todosContainer.addEventListener('click', (e) => {
 		modalOpen = true;
 	}
 });
+
+/*
+
+To edit an entry, first submit the edit it in the array then clear then render
+
+
+*/
